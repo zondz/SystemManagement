@@ -1,5 +1,6 @@
+import java.io.Serializable;
 
-public class Student {
+public class Student{
 	private int id;
 	private String name;
 	private String className;
