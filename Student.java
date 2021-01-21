@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Student{
 	private int id;
@@ -8,26 +9,29 @@ public class Student{
 	public Student() {
 		
 	}
-	public Student(int id, String name, String className) {
-		this.id=id;
-		this.name=name;
-		this.className=className;
-	}
-
+	
 	public int getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public boolean setId(int id, ArrayList<Integer> usedId) throws WrongInputValueException  {
+		if(validateId(usedId)) {
 		this.id = id;
+		return true;
+	}
+		else {
+		throw new WrongInputValueException("Wrong id:" +id);
+		
+	}
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public boolean setName(String name) {
 		this.name = name;
+		return true;
 	}
 
 	public String getClassName() {
@@ -41,5 +45,15 @@ public class Student{
 	@Override
 	public String toString() {
 		return "Student [id=" + id + ", name=" + name + ", className=" + className + "]";
+	}
+	
+	private boolean validateId(ArrayList<Integer> usedId ) {
+		boolean check =true;
+		for(int i=0;i<usedId.size();i++) {
+			if(usedId.get(i)==this.id) {
+				return check=false;
+			}
+		}
+		return check;
 	}
 }
