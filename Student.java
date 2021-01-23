@@ -9,13 +9,17 @@ public class Student{
 	public Student() {
 		
 	}
+	public Student(int id,String name) {
+		
+	}
+	
 	
 	public int getId() {
 		return id;
 	}
 
-	public boolean setId(int id, ArrayList<Integer> usedId) throws WrongInputValueException  {
-		if(validateId(usedId)) {
+	public boolean setId(int id) throws WrongInputValueException  {
+		if(validateId(id)) {
 		this.id = id;
 		return true;
 	}
@@ -47,13 +51,29 @@ public class Student{
 		return "Student [id=" + id + ", name=" + name + ", className=" + className + "]";
 	}
 	
-	private boolean validateId(ArrayList<Integer> usedId ) {
-		boolean check =true;
-		for(int i=0;i<usedId.size();i++) {
-			if(usedId.get(i)==this.id) {
-				return check=false;
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		if(obj instanceof Student) {
+			if(((Student) obj).getId()== this.getId()) return true;
+			else {
+				return false;
 			}
 		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean validateId(int id) {
+		boolean check =true;
+//		for(int i=0;i<usedId.size();i++) {
+//			if(usedId.get(i)==this.id) {
+//				return check=false;
+//			}
+//		}
 		return check;
 	}
 }
