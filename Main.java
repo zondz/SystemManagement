@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class Main {
 	
 private static ArrayList<Classroom> classroomList = new ArrayList<Classroom>(); 
 //private static ArrayList<String> fileNameList = new ArrayList<String>();
-private static ArrayList<Integer> usedId= new ArrayList<Integer>();
+//private static ArrayList<Integer> usedId= new ArrayList<Integer>();
 /**
  * HashMap
  */
@@ -56,8 +57,47 @@ private static ArrayList<Integer> usedId= new ArrayList<Integer>();
 	public static void main(String[]args) {
 		
 		idMap.put(1801040203,new Student());
-//		System.out.println(idMap.size());
-		showStudents();
+		System.out.println(idMap.size());
+//		showStudents();
+//		showClassList();;
+		try {
+			
+			// tao lop
+			Classroom cls = new Classroom(2,"4C");
+			classroomList.add(cls);
+			// tao sinh vien
+			Student std = createNewStudent();
+			Student std1 = createNewStudent();
+//			cls.addStudent(std);
+//			cls.addStudent(std1);
+
+			List<Student>list =cls.getStudentList();
+//			cls.addStudent(std);
+//			System.out.println(createNewStudent());
+			
+//			modifySudent();
+//			System.out.println("Student trong lop trc khi xoa");
+//			showStudents();
+//			for(int i =0;i<cls.NumberOfStudent();i++) {
+//				System.out.println(list.get(i));
+//			}
+//			System.out.println("Student sau khi xoa");
+//			deleteStudent(std.getId());
+//			for(int i =0;i<cls.NumberOfStudent();i++) {
+//				System.out.println(list.get(i));
+//			}
+//			
+//			showStudents();
+			addStudentToClass();
+			deleteStudentFromClass();
+		} catch (WrongInputValueException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 /**
@@ -135,13 +175,13 @@ public static void studentManagement() {
 public static Student createNewStudent() throws WrongInputValueException, IOException  {
 //	ArrayList<Student> allReturnedStudent= showStudents(classroomList);
 	Scanner sc = new Scanner(System.in);
-	System.out.println("Insert Student id: ");
+	System.out.println("Insert new Student id: ");
 	int id = sc.nextInt();
 	if(idMap.containsKey(id)) {
 		throw new WrongInputValueException("Wrong value for id:" +id);
 	}
 	sc.nextLine();
-	System.out.println("Insert Student name: ");
+	System.out.println("Insert new student name: ");
 	String name = sc.nextLine();
 	Student newStudent = new Student(id,name);
 	idMap.put(id,newStudent);
@@ -200,19 +240,21 @@ public static Student createNewStudent() throws WrongInputValueException, IOExce
  * 3.1.2 Sửa sinh viên
  * @throws WrongInputValueException 
  */
-public static void modifySudent() throws WrongInputValueException {
+public static void modifySudent(int id) throws WrongInputValueException {
 	Scanner sc = new Scanner(System.in);
 	
 	//find all student exist
-	showStudents();
-	System.out.println("Input student id :");
-	int studentId = sc.nextInt();
-	if(!idMap.containsKey(studentId)) {
+//	showStudents();
+//	System.out.println("Input student id :");
+//	int studentId = sc.nextInt();
+	sc.nextLine();
+	
+	if(!idMap.containsKey(id)) {
 		
-		throw new WrongInputValueException("Wrong input id value: "+studentId);
+		throw new WrongInputValueException("Wrong modify input id value : "+id);
 		
 	};
-	Student modifyStudent = idMap.get(studentId);
+	Student modifyStudent = idMap.get(id);
 	System.out.println("input new student name : ");
 	String newStudentName = sc.nextLine();
 	System.out.println("input new student class name: ");
@@ -247,14 +289,90 @@ public static void deleteStudent(int id) throws WrongInputValueException {
 
 /**
  * 3.2 Thêm student vào class
+ * @throws WrongInputValueException 
  */
-public static void addStudentToClass() {
+public static void addStudentToClass() throws WrongInputValueException {
+	if(classroomList.size()==0) {
+		System.out.println("No class room found!");
+		return;
+	}
+	showStudents();
+	Scanner sc = new Scanner(System.in);
+	System.out.println("Input student id:");
+	int id = sc.nextInt();
+	sc.nextLine();
+	System.out.println("Choose class :");
+	showClassList();
+	String className = sc.nextLine();
+	Student std =idMap.get(id);
+
+	for(Classroom cls : classroomList) {
+		if(cls.getClassroomName().equals(className)) {
+			if(cls.getStudentList().contains(std)) {
+				System.out.println("Student already in class");
+			return;
+			}
+			else {
+				std.setClassName(className);
+				cls.getStudentList().add(std);
+				List<Student> list =cls.getStudentList();
+				for(int i=0;i<list.size();i++) {
+					System.out.println(list.get(i));
+				}
+				break;
+			}
+			
+		}
+		else {
+			throw new WrongInputValueException("classroom name does not exist");
+		}
+		
+	}
 	
 }
 /**
  * 3.3 Xóa student khỏi class
+ * @throws WrongInputValueException 
  */
-public static void deleteStudentFromClass() {
+public static void deleteStudentFromClass() throws WrongInputValueException {
+	if(classroomList.size()==0) {
+		System.out.println("No class room found!");
+		return;
+	}
+	showClassList();
+	Scanner sc = new Scanner(System.in);
+	System.out.println("Choose class :");
+	String className = sc.nextLine();
+	List<Student> stds=null;
+	boolean check = false;
+	Classroom c=null;
+	for(Classroom cls : classroomList) {
+		if(cls.getClassroomName().equals(className)) {
+			c=cls;
+			stds = cls.getStudentList();
+			check = true;
+			break;
+		}
+		
+	}
+	if(check == true) {
+	System.out.println("Students in class"+ className + ":");
+	for(Student std : stds) {
+		System.out.println(std);
+	}
+	}
+	else {
+		throw new WrongInputValueException("class does not exist: "+className);
+	}
+	System.out.println("Input student id:");
+	int id = sc.nextInt();
+	sc.nextLine();
+	
+	c.getStudentList().remove(idMap.get(id));
+	System.out.println("Students in class "+ className + " after deleting:");
+	for(Student std : stds) {
+		System.out.println(std);
+	}
 	
 }
 /**
