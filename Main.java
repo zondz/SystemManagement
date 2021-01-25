@@ -282,6 +282,7 @@ public static void deleteStudent() throws WrongInputValueException {
 	}
 	
 	for(int i=0;i<students.size();i++) {
+		System.out.println(students.size());
 		System.out.println(students.get(i));
 	}
 //	classroomList
@@ -293,7 +294,7 @@ public static void deleteStudent() throws WrongInputValueException {
 //			}
 //		}
 //	}
-	
+	System.out.println("DONE deletingStudents");
 }
 
 /**
