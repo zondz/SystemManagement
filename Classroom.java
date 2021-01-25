@@ -44,7 +44,7 @@ public class Classroom {
 	}
 	@Override
 	public String toString() {
-		return "Classroom={Id: "+this.id+" classroomName: "+this.classroomName +"monitorId: "+this.monitorId  ;
+		return "Classroom={Id: "+this.id+" classroomName: "+this.classroomName +" monitorId: "+this.monitorId +" }" ;
 	}
 	
 	public void addStudent(Student std) {
