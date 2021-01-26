@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Classroom {
+public class Classroom implements Serializable{
 	private int id;
 	private String classroomName;
 	private int monitorId;
@@ -44,13 +45,16 @@ public class Classroom {
 	}
 	@Override
 	public String toString() {
-		return "Classroom={Id: "+this.id+" classroomName: "+this.classroomName +" monitorId: "+this.monitorId +" }" ;
+		return "Classroom [id=" + id + ", classroomName=" + classroomName + ", monitorId=" + monitorId
+				+ ", studentList=" + studentList + "]";
 	}
 	
 	public void addStudent(Student std) {
 		this.studentList.add(std);
 		
 	}
+	
+
 	
 	
 	

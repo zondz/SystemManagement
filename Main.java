@@ -1,9 +1,11 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +19,7 @@ import java.util.Set;
 /**
  * Bài tập
  * Chương trình in ra console
- * Chức năng chính :
+ * Chức năng chính
  * 1. Hiển thị danh sách sinh viên
  * 2. Hiển thị danh sách lớp học
  * 3. Quản lý sinh viên
@@ -27,16 +29,16 @@ import java.util.Set;
  * 3.2 Thêm sinh viên vào trong lớp học
  * 3.3 Xóa sinh viên khỏi lớp học
  * 4. Quản lý lớp học
- * 4.1.1 Thêm lớp học 
+ * 4.1.1 Thêm lớp học
  * 4.1.2 Sửa lớp học
  * 4.1.3 Xóa lớp học
- * 4.2 Chọn ra lớp trưởng của lớp học
+ * 4.2 Chọn ra lớp trưởng lớp học
  * 
  * Yêu cầu : ghi thông tin sinh viên , lớp học ra file
- * + file sinh viên gồm : id sinh viên, tên sinh viên , mã lớp 
- * + file lớp học gồm :id lớp học , tên lớp học , mã sinh viên của lớp trưởng
+ * + file sinh viên gôm : id sinh viên , tên sinh viên , mã lớp 
+ * + file lớp học gồm : id , tên lớp , mã sinh viên lớp trưởng 
  * 
- * notes : id của file phải là duy nhất
+ * notes : id trong từng file phải là duy nhất
  * @author Thanh
  *
  */
@@ -51,69 +53,50 @@ private static ArrayList<Classroom> classroomList = new ArrayList<Classroom>();
 	static HashMap<Integer,Student> idMap = new HashMap<>();	
 	static HashMap<Integer,Classroom> idClassMap = new HashMap<>();
 	/**
-	 * Thực hiện show menu , các chức năng của chương trình
-	 * Gọi các function tương ứng
+	 * show menu
+	 * 
 	 * @param args
 	 */
 	public static void main(String[]args) {
 		
-		idMap.put(1801040203,new Student());
+	idMap.put(1801040203,new Student());
 		System.out.println(idMap.size());
 //		showStudents();
 //		showClassList();;
 		try {
 			
 			// tao lop
-			Classroom cls = new Classroom(2,"4C");
-			idClassMap.put(2, cls);
+			createNewClass();
+//			idClassMap.put(10, cls);
 			// tao sinh vien
 			Student std = createNewStudent();
 			Student std1 = createNewStudent();
-//			cls.addStudent(std);
-//			cls.addStudent(std1);
-
-//			List<Student>list =cls.getStudentList();
-//			cls.addStudent(std);
-//			System.out.println(createNewStudent());
-			
 //			modifySudent();
-//			System.out.println("Student trong lop trc khi xoa");
-//			showStudents();
-//			for(int i =0;i<cls.NumberOfStudent();i++) {
-//				System.out.println(list.get(i));
-//			}
-//			System.out.println("Student sau khi xoa");
-//			deleteStudent(std.getId());
-//			for(int i =0;i<cls.NumberOfStudent();i++) {
-//				System.out.println(list.get(i));
-//			}
-//			
-//			showStudents();
 			addStudentToClass();
-			deleteStudent();
-			showStudents();
+			selectMonitor();
+//			modifyClass();
+//			removeClass();
 //			deleteStudentFromClass();
-//			showStudents();
-//			showClassList();
-//			modifySudent();
-			deleteStudentFromClass();
 		} catch (WrongInputValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+//		
+//	File file = new File("Student-1.txt");
+//	if(file.exists()) {
+//		System.out.print("FileExist");
+//		file.delete();
+//	}
 	}
 
 /**
  *  1. Hiển thị danh sách sinh viên
  */
 public static void showStudents() {
-	// kiểm tra có sinh viên hay không
+	// kiểm tra có sinh viên không 
 	if(idMap.isEmpty()) {
-		System.out.println("Không có sinh viên");
+		System.out.println("Không có sinh viên !");
 		return ;
 	}
 	
@@ -138,7 +121,7 @@ public static void showStudents() {
  */
 public static void showClassList() {
  if(idClassMap.size()==0) {
-	 System.out.println("Không có lớp nào ");
+	 System.out.println("Không có lớp học nào !");
 	 return;
  }
  Set<Integer> keySet = idClassMap.keySet(); 
@@ -158,25 +141,55 @@ public static void studentManagement() {
 }
 
 /**
- * 3.1.1 Thêm sinh viên 
+ * 3.1.1 Thêm sinh viên
  * @throws WrongInputValueException 
  * @throws IOException 
  * @throws Exception 
  */
-public static Student createNewStudent() throws WrongInputValueException, IOException  {
+public static Student createNewStudent() throws WrongInputValueException {
 //	ArrayList<Student> allReturnedStudent= showStudents(classroomList);
 	Scanner sc = new Scanner(System.in);
-	System.out.println("Insert new Student id: ");
+	System.out.println("Nhập id của sinh viên mới : ");
 	int id = sc.nextInt();
 	if(idMap.containsKey(id)) {
-		throw new WrongInputValueException("Wrong value for id:" +id);
+		throw new WrongInputValueException("Id của sinh viên mới sai:" +id);
 	}
 	sc.nextLine();
-	System.out.println("Insert new student name: ");
+	System.out.println("Nhập tên sinh viên mới : ");
 	String name = sc.nextLine();
 	Student newStudent = new Student(id,name);
 	idMap.put(id,newStudent);
-
+	
+	
+	
+	// create new file for new Student 
+	
+//	FileOutputStream fos;
+	try {
+		FileOutputStream fos = new FileOutputStream("Student-"+id+".txt");
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		oos.writeObject(newStudent);
+		oos.close();
+		fos.close();
+		FileInputStream fis  = new FileInputStream("Student-"+id+".txt");
+		ObjectInputStream obs = new ObjectInputStream(fis);
+		System.out.println("Read from file");
+		Student student = (Student) obs.readObject();
+		System.out.println(student);
+		obs.close();
+		fis.close();
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	
+	
 	return newStudent;
 }
 
@@ -185,22 +198,23 @@ public static Student createNewStudent() throws WrongInputValueException, IOExce
  * @throws WrongInputValueException 
  */
 public static void modifySudent() throws WrongInputValueException {
+	System.out.println("Start modifyStudent");
 	showStudents();
-	System.out.println("Please input student id : ");
+	System.out.println("Nhập id sinh viên cần sửa : ");
 	Scanner sc = new Scanner(System.in);	
 	int modifyId = sc.nextInt();
 	sc.nextLine();
 	if(!idMap.containsKey(modifyId)) {
 		
-		throw new WrongInputValueException("Wrong modify input id value : "+modifyId);
+		throw new WrongInputValueException("id không tồn tại : "+modifyId);
 		
 	};
-	// lấy được sinh viên cần sửa trong hash map
+	
 	Student modifyStudent = idMap.get(modifyId);
-	// nhập thông tin mới 
-	System.out.println("input new student name : ");
+	// nhập thông tin mới
+	System.out.println("nhập tên mới : ");
 	String newStudentName = sc.nextLine();
-	System.out.println("input new student class name: ");
+	System.out.println("nhập tên lớp học mới : ");
 	String newStudentClassname = sc.nextLine();
 	// check if class room exist ?
 	Set<Integer> keySet = idClassMap.keySet();
@@ -214,58 +228,81 @@ public static void modifySudent() throws WrongInputValueException {
 			break;
 		}
 	}
-	// không có class tên như vậy
+	// Không tồn tại lớp học tên vậy
 	if(check==false) {
-		throw new WrongInputValueException("Lớp không tồn tại :" +newStudentClassname);
+		throw new WrongInputValueException("Không tồn tại lớp học tên :" +newStudentClassname);
 	}
 		
 	
 	modifyStudent.setName(newStudentName);
 	modifyStudent.setClassName(newStudentClassname);
-	
-	cls.addStudent(modifyStudent);
-	Iterator iter1 = cls.getStudentList().iterator();
+		cls.addStudent(modifyStudent);
+		
+	Iterator<Student> iter1 = cls.getStudentList().iterator();
 	while(iter1.hasNext()) {
 		System.out.println(iter1.next());
 	}
 	
 	// find that existing file and update
+	String fileName = "Student-"+modifyId+".txt";
+	try {
+		FileOutputStream fos = new FileOutputStream(fileName);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		oos.writeObject(modifyStudent);
+		oos.close();
+		fos.close();
+		FileInputStream fis = new FileInputStream(fileName);
+		ObjectInputStream ois = new ObjectInputStream(fis);
+		System.out.println("Read from file");
+		Student student = (Student) ois.readObject();
+		System.out.println(student);
+		ois.close();
+		fis.close();
+	} catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	
 }
 /**
- * 3.1.3 Xóa sinh viên // fix
+ * 3.1.3 Xóa sinh viên
  * @throws WrongInputValueException 
  */
 public static void deleteStudent() throws WrongInputValueException {
 	System.out.println("START DeleteStudent");
 	showStudents();
 	Scanner sc = new Scanner(System.in);
-	System.out.println("input id to delete : ");
+	System.out.println("Nhập id sinh viên để xóa : ");
 	int deleteId = sc.nextInt();
 	sc.nextLine();
 	if(!idMap.containsKey(deleteId)) {
-		throw new WrongInputValueException("Student id does not exist: "+deleteId);
+		throw new WrongInputValueException("Id sinh viên không tồn tại: "+deleteId);
 	}
 	Student deleteStudent = idMap.get(deleteId);
 	idMap.remove(deleteId);
-	// xóa trong class 
-	// trả về set
+	
 	Set<Integer> keySet = idClassMap.keySet();
-	// lặp qua set
+
 	Iterator<Integer> iter  = keySet.iterator();
-	// cls từng cls
+
 	Classroom cls=null;
-	// student trong từng class
+	// students trong từng  class
 	List<Student> students=null;
-	// không tồn tại học sinh
+	
 	boolean check = false;
-	// còn có id của class tiếp thep
+	
 	while(iter.hasNext()) {
-//		 lấy đc class tiếp theo
+
 		cls = idClassMap.get(iter.next());
-		// lấy được studentList tiếp theo
+	
 		students = cls.getStudentList();
-		// kiểm tra trong mỗi students của class
+
 		for(Student s : students) {
 //			
 			if(s.equals(deleteStudent)) {
@@ -278,53 +315,53 @@ public static void deleteStudent() throws WrongInputValueException {
 		if(check == true) {
 			break;
 		}
-		System.out.println("Done delete");
+		System.out.println("Xóa xong");
 	}
 	
 	for(int i=0;i<students.size();i++) {
-		System.out.println(students.size());
+//		System.out.println("Numstudents.size());
 		System.out.println(students.get(i));
 	}
-//	classroomList
-//	for(Classroom cls : classroomList) {
-//		for(int i=0;i<cls.getStudentList().size();i++) {
-//			Student std = cls.getStudentList().get(i);
-//			if(std.getId()==id) {
-//				cls.getStudentList().remove(std);
-//			}
-//		}
-//	}
+
 	System.out.println("DONE deletingStudents");
+	System.out.println("Start deleting files");
+	String fileName = "Student-"+deleteId+".txt";
+	File file = new File (fileName);
+	if(file.exists()) {
+		file.delete();
+	}
+
+	
 }
 
 /**
- * 3.2 Thêm student vào class
+ * 3.2 Thêm sinh viên vào class
  * @throws WrongInputValueException 
  */
 public static void addStudentToClass() throws WrongInputValueException {
-	// kiểm tra có class nào không 
+	// kiá»ƒm tra cÃ³ class nÃ o khÃ´ng 
 	if(idClassMap.isEmpty()) {
-		System.out.println("No class room found!");
+		System.out.println("Không có bất kì lớp học nào !");
 		return;
 	}
-	// nếu có -> show sinh viên để add vào lớp
+	
 	showStudents();
-	// nhập id sinh viên
+	// nháº­p id sinh viÃªn
 	Scanner sc = new Scanner(System.in);
-	System.out.println("Input student id to add:");
+	System.out.println("Nhập id sinh viên để thêm vào lớp:");
 	int id = sc.nextInt();
 	sc.nextLine();
-	// kiểm tra xem id hợp lệ không 
+	
 	if(!idMap.containsKey(id)) {
-		throw new WrongInputValueException("Không tìm thấy sinh viên : "+ id);
+		throw new WrongInputValueException("Không tìm thấy id sinh viên: "+ id);
 	}
-	// lấy ra sinh viên
+	// láº¥y ra sinh viÃªn
 	Student std =idMap.get(id);
-	// chọn class để add 
-	System.out.println("input class name  :");
+	// chá»�n class Ä‘á»ƒ add 
+	System.out.println("nhập tên lớp  :");
 	showClassList();
 	String className = sc.nextLine();
-	//  kiểm tra class đó tồn tại không 
+	//  kiá»ƒm tra class Ä‘Ã³ tá»“n táº¡i khÃ´ng 
 	Set<Integer> keySet = idClassMap.keySet();
 	Iterator<Integer> iter = keySet.iterator();
 	boolean check=false;
@@ -336,22 +373,39 @@ public static void addStudentToClass() throws WrongInputValueException {
 			break;
 		}
 	}
-	// không có class tên như vậy
+	// khÃ´ng cÃ³ class tÃªn nhÆ° váº­y
 	if(check==false) {
 		throw new WrongInputValueException("Lớp không tồn tại : " + className);
 	}
-	// kiểm tra student trong class chưa 
+	// kiá»ƒm tra student trong class chÆ°a 
 	List<Student> students = cls.getStudentList();
 	// student da trong class
 	for(int i =0;i<students.size();i++) {
 		if(students.get(i).getId()==std.getId()) {
-			System.out.println("Student already in class ");
+			System.out.println("Học sinh đã có sẵn trong lớp ");
 			return;
 		}
 	}
 	// student chua trong class
 
 	std.setClassName(cls.getClassroomName());
+	String fileName = "Student-"+id+".txt";
+	FileOutputStream fos;
+	try {
+		fos = new FileOutputStream(fileName);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		oos.writeObject(std);
+		oos.close();
+		fos.close();
+	} catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	// need to modify the class file also ?
 	cls.getStudentList().add(std);
 	
 	for(int i = 0;i<students.size();i++) {
@@ -360,51 +414,28 @@ public static void addStudentToClass() throws WrongInputValueException {
 	
 	
 	System.out.println("ADD CLASS XONGGGGGGG");
-	
-	
-	
-//	for(Classroom cls : classroomList) {
-//		if(cls.getClassroomName().equals(className)) {
-//			if(cls.getStudentList().contains(std)) {
-//				System.out.println("Student already in class");
-//			return;
-//			}
-//			else {
-//				std.setClassName(className);
-//				cls.getStudentList().add(std);
-//				List<Student> list =cls.getStudentList();
-//				for(int i=0;i<list.size();i++) {
-//					System.out.println(list.get(i));
-//				}
-//				break;
-//			}
-//			
-//		}
-//		else {
-//			throw new WrongInputValueException("classroom name does not exist");
-//		}
-//		
-//	}
-//	
+
 }
 /**
- * 3.3 Xóa student khỏi class fix
+ * 3.3 XÃ³a student khá»�i class 
  * @throws WrongInputValueException 
  */
 public static void deleteStudentFromClass() throws WrongInputValueException {
 	System.out.println("Start deleting student from class");
 	if(idClassMap.isEmpty()) {
-		System.out.println("No class room found!");
+		System.out.println("Không có lớp nào tồn tại!");
 		return;
 	}
+	// show ra cÃ¡c lá»›p Ä‘á»ƒ chá»�n lá»›p
 	showClassList();
 	Scanner sc = new Scanner(System.in);
-	System.out.println("Choose class name :");
+	System.out.println("Nhập tên lớp :");
 	String className = sc.nextLine();
 	List<Student> students=null;
 	boolean check = false;
 	Classroom cls=null;
 	
+	// kiá»ƒm tra cÃ³ lá»›p Ä‘Ã³ khÃ´ng
 	Set<Integer> keySet = idClassMap.keySet();
 	Iterator<Integer> iter = keySet.iterator();
 	while(iter.hasNext()) {
@@ -416,37 +447,74 @@ public static void deleteStudentFromClass() throws WrongInputValueException {
 		}
 		
 	}
-	
-//	for(Classroom cls : classroomList) {
-//		if(cls.getClassroomName().equals(className)) {
-//			c=cls;
-//			stds = cls.getStudentList();
-//			check = true;
-//			break;
-//		}
-//		
-//	}
+	// in ra há»�c sinh trong lá»›p
 	if(check == true) {
-	System.out.println("Students in class "+ className + " :");
+	System.out.println("Học sinh trong lớp "+ className + " :");
 	for(Student std : students) {
 		System.out.println(std);
 	}
 	}
 	else {
-		throw new WrongInputValueException("class name does not exist: "+className);
+		throw new WrongInputValueException("tên class không tồn tại: "+className);
 	}
-	System.out.println("Input student id:");
+	System.out.println("Nhập id sinh viên để xóa khỏi lớp:");
 	int id = sc.nextInt();
 	sc.nextLine();
-	// check dieu kien nua 
-	if(!idMap.containsKey(id)) {
-		throw new WrongInputValueException("Không tìm thấy sinh viên : "+ id);
+	// check xem há»�c há»�c sinh nÃ y cÃ³ trong lá»›p khÃ´ng
+	boolean inClass = false;
+	for(int i =0;i<students.size();i++) {
+		if(students.get(i).getId()==id) {
+			inClass=true;
+			break;
+		};
 	}
+	if(inClass==false) {
+		System.out.println("id sinh viên không có trong lớp : "+id);
+		return;
+	}
+	
+	// check co phai monitor hay khong -> SAIIIIIIIIIIii
+//	boolean monitor =false;
+//	if(cls.getMonitorId()==id) {
+//		monitor = true;
+//	}
+//	
+	// lÃ  lá»›p trÆ°á»Ÿng , cáº§n chá»‰nh file classroom
+	if(cls.getMonitorId()==id) {
+		
+		cls.setMonitorId(0);
+		// Classroom file : Classroom-classroomId
+		File file = new File("Classroom-"+cls.getId()+".txt");
+		if(file.exists()) {
+			file.delete();
+		}
+		else {
+			
+//			 + file lá»›p há»�c gá»“m : id lá»›p há»�c , tÃªn lá»›p há»�c , mÃ£ sinh viÃªn cá»§a lá»›p trÆ°á»Ÿng
+//			String inputToClassFile ="Class id : " +String.valueOf(cls.getId())+" \n" +cls.getClassroomName()+" \n " +String.valueOf(cls.getMonitorId());
+			String[] inputToClassFile = {"class id: " + String.valueOf(cls.getId()),"class name: "+cls.getClassroomName(),"monitor id: "+String.valueOf(cls.getMonitorId())};
+			try {
+				FileWriter fr = new FileWriter("Classroom-"+cls.getId()+".txt");
+				for(int i =0 ;i<inputToClassFile.length;i++) {
+					System.out.println(inputToClassFile[i]);
+					fr.write(inputToClassFile[i]);
+					fr.write("\n");
+				}
+				fr.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	students.remove(idMap.get(id));
-	System.out.println("Students in class "+ className + " after deleting:");
+	idMap.remove(id);
+	System.out.println("Các học sinh trong lớp "+ className + " Sau khi xóa:");
 	for(Student student : students) {
 		System.out.println(student);
 	}
+	
 	System.out.println("DELETE FROM CLASS XONG ");
 	
 }
@@ -455,27 +523,256 @@ public static void deleteStudentFromClass() throws WrongInputValueException {
  * 
  */
 public void manageClasses() {
+	System.out.println("Chọn chức năng :");
+	System.out.println("* 4.1.1 Thêm mới lớp học");
+	System.out.println("4.1.2 sửa lớp học");
+	System.out.println("4.1.3 Xóa lớp học");
+	System.out.println("4.2 Chọn lớp trưởng của lớp học");
+
 	
 }
 /**
- * 4.1.1 Thêm lớp học mới
+ * 4.1.1 Thêm mới lớp học
+ * @throws WrongInputValueException 
  */
- public static void createNewClass() {
+ public static void createNewClass() throws WrongInputValueException {
+	 System.out.println("START CreateNewClass");
+	 Scanner sc = new Scanner(System.in);
+	 /**
+	  * 	private int id;
+	private String classroomName;
+	private int monitorId;
+	private  ArrayList<Student> studentList;
+	
+	  */
+	 System.out.println("input new class id : ");
+	 int newClassId = sc.nextInt();
+	 sc.nextLine();
+	 if(idClassMap.containsKey(newClassId)) {
+		 throw new WrongInputValueException("id lớp đã tồn tại: " +newClassId);
+	 }
+	 // chá»‰ cÃ³ 1 id tÆ°Æ¡ng Ä‘Æ°Æ¡ng má»™t lá»›p 
+	 System.out.println("Nhập mới tên lớp học :");
+	 String newClassName = sc.nextLine();
+	 Set<Integer> keySet = idClassMap.keySet();
+	 Iterator<Integer> iter = keySet.iterator();
+	 while(iter.hasNext()) {
+		 int i = iter.next();
+		 if(idClassMap.get(i).getClassroomName().equals(newClassName)) {
+			throw new WrongInputValueException("Tên lớp học đã tồn tại : " + newClassName);
+		 }
+	 }
+	 
+	 Classroom cls = new Classroom(newClassId, newClassName);
+	 idClassMap.put(newClassId, cls);
+	String[] inputToClassFile = {"class id: " + String.valueOf(newClassId),"class name: "+newClassName,"monitor id: "+String.valueOf(cls.getMonitorId())};
+	try {
+		FileWriter fr = new FileWriter("Classroom-"+cls.getId()+".txt");
+		for(int i =0 ;i<inputToClassFile.length;i++) {
+			System.out.println(inputToClassFile[i]);
+			fr.write(inputToClassFile[i]);
+			fr.write("\n");
+		}
+		fr.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} 
+	System.out.println("create new class xonggg");
+	 showClassList();
+	 
 	 
  }
  /**
-  * 4.1.2 Sửa lớp học
+  * 4.1.2 sửa lớp học
+ * @throws WrongInputValueException 
   */
- public static void modifyClass() {
+ public static void modifyClass() throws WrongInputValueException {
+	 System.out.println("Start modifyClass");
+	 if(idClassMap.isEmpty()) {
+		 System.out.println("Không có lớp để sửa!");
+		 return;
+	 }
+	 showClassList();
+	 Scanner sc = new Scanner(System.in);
+	 System.out.println("Nhập id lớp để sửa: ");
+	 int modifyId = sc.nextInt();
+	 sc.nextLine();
+	 if(!idClassMap.containsKey(modifyId)) {
+		 throw new WrongInputValueException("id lớp không tồn tại : "+modifyId);
+	 }
+	 System.out.println("Nhập tên lớp mới để sửa: ");
+	 String newClassName = sc.nextLine();
+	 Set<Integer> keySet = idClassMap.keySet();
+	 Iterator<Integer> iter = keySet.iterator();
+	 while(iter.hasNext()) {
+		 int i = iter.next();
+		 if(idClassMap.get(i).getClassroomName().equals(newClassName)) {
+			throw new WrongInputValueException("Tên lớp mới đã tồn tại : " + newClassName);
+		 }
+	 }
+	 
+	 // check monitor infor 
+
+	Classroom classToModify = idClassMap.get(modifyId);
+	classToModify.setClassroomName(newClassName);
+	List<Student> students = classToModify.getStudentList();
+	if(students.size()==0) {
+		System.out.println("Lớp "+newClassName+" Không có học sinh");
+		return;
+	}
+	System.out.println("Chọn lớp trưởng bằng id học sinh  :");
+	for(int i = 0; i<students.size();i++) {
+		System.out.println(students.get(i));
+	}
+	int newMonitorId = sc.nextInt();
+	sc.nextLine();
+	
+	boolean check = false;
+//	int newMonitorIndex;
+	Student newMonitor = null;
+	for(int i =0; i<students.size();i++) {
+		newMonitor = students.get(i);
+		if(newMonitor.getId()== newMonitorId) {
+			check = true;
+			break;
+		}
+	}
+	if(check == true) {
+		classToModify.setMonitorId(newMonitorId);
+		String[] inputToClassFile = {"class id: " + String.valueOf(classToModify.getId()),"class name: "+classToModify.getClassroomName(),"monitor id: "+String.valueOf(classToModify.getMonitorId())};
+		try {
+			FileWriter fr = new FileWriter("Classroom-"+classToModify.getId()+".txt");
+			for(int i =0 ;i<inputToClassFile.length;i++) {
+				System.out.println(inputToClassFile[i]);
+				fr.write(inputToClassFile[i]);
+				fr.write("\n");
+			}
+			fr.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	}
+	else {
+		throw new WrongInputValueException("id học sinh không đúng : "+newMonitorId);
+	}
+	
+	
+	System.out.println("MODIFY CLASS XONGGGGGGGGg");
+	
+	
+//	 Classroom cls = idClassMap.get(modifyId);
+//	 cls.setClassroomName(newClassName);
+//	 cls.set
+//	 
+//	 
+	 
 	 
  }
  /**
   * 4.1.3 Xóa lớp học
+ * @throws WrongInputValueException 
   */
- public static void removeClass() {}
+ public static void removeClass() throws WrongInputValueException {
+	 System.out.println("Start removeClass");
+	 Scanner sc = new Scanner(System.in);
+	 System.out.println("Chọn id lớp cần xóa :");
+	 showClassList();
+	 int removeClassId = sc.nextInt();
+	 if(!idClassMap.containsKey(removeClassId)) {
+		throw new WrongInputValueException("id lớp không tồn tại : "+removeClassId);
+	 }
+	 Classroom classToRemove = idClassMap.get(removeClassId);
+	 List<Student> students = classToRemove.getStudentList();
+	for(Student s : students) {
+		s.setClassName(null);
+	}
+	
+	 idClassMap.remove(removeClassId);
+	 File file = new File("Classroom-"+classToRemove.getId()+".txt");
+	 if(file.exists()) {
+		 file.delete();
+	 }
+	 System.out.println("Xóa xong!");
+	 Set<Integer> keySet=idClassMap.keySet();
+	 Iterator<Integer> iter = keySet.iterator();
+	 System.out.println("Các lớp học sau khi xóa :");
+	 if(idClassMap.size()==0) {
+		 System.out.println("Không còn lớp nào!");
+	 }
+	 while(iter.hasNext()) {
+		 System.out.println(idClassMap.get(iter.next()));
+	 }
+	 showStudents();
+	 
+ }
  /**
-  * Chọn ra lớp trưởng lớp học
+  * 4.2 Chọn lớp trưởng của lớp học
+ * @throws WrongInputValueException 
   */
- public static void selectMonitor() {}
+ public static void selectMonitor() throws WrongInputValueException {
+	 
+	 // chá»�n lá»›p há»�c 
+	 System.out.println("Start selectMonitor:");
+	 Scanner sc = new Scanner(System.in);
+	 System.out.println("Chọn id lớp để chọn lớp trưởng :");
+	 showClassList();
+	 int classId = sc.nextInt();
+	 sc.nextLine();
+	 if(!idClassMap.containsKey(classId)) {
+			throw new WrongInputValueException("id lớp không tồn tại : "+ classId);
+		 }
+	 Classroom classToChooseMonitor = idClassMap.get(classId);
+	 List<Student> students= classToChooseMonitor.getStudentList();
+	 if(students.size()==0) {
+		 System.out.println("Lớp "+classToChooseMonitor.getClassroomName()+" Không có học sinh để chọn làm lớp trường ");
+		 return;
+	 }
+	 System.out.println("Chọn lớp trưởng mới bằng id  :");
+		for(int i = 0; i<students.size();i++) {
+			System.out.println(students.get(i));
+		}
+		
+		// get studnet id to be monitor 
+		int newMonitorId = sc.nextInt();
+		sc.nextLine();
+		
+		boolean check = false;
+//		int newMonitorIndex;
+		Student newMonitor = null;
+		for(int i =0; i<students.size();i++) {
+			newMonitor = students.get(i);
+			if(newMonitor.getId()== newMonitorId) {
+				check = true;
+				break;
+			}
+		}
+		if(check == true) {
+			classToChooseMonitor.setMonitorId(newMonitorId);
+			// cập nhật file
+			String[] inputToClassFile = {"class id: " + String.valueOf(classToChooseMonitor.getId()),"class name: "+classToChooseMonitor.getClassroomName(),"monitor id: "+String.valueOf(classToChooseMonitor.getMonitorId())};
+			try {
+				FileWriter fr = new FileWriter("Classroom-"+classToChooseMonitor.getId()+".txt");
+				for(int i =0 ;i<inputToClassFile.length;i++) {
+					System.out.println(inputToClassFile[i]);
+					fr.write(inputToClassFile[i]);
+					fr.write("\n");
+				}
+				fr.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			
+		}
+		else {
+			throw new WrongInputValueException("id không có trong lớp : "+newMonitorId);
+		}
+		
+	System.out.println("Chọn lớp trưởng xong");
+	System.out.println("Lớp sau khi chọn lớp trưởng: "+classToChooseMonitor);
+	 
+ }
  
 }
