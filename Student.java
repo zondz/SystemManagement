@@ -2,30 +2,44 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Student implements Serializable{
-	private int id;
+	// 1801040203
+	private String id;
+	// Pham Tien Thanh
 	private String name;
 	private String className;
 	
 	public Student() {
 		
 	}
-	public Student(int id,String name) {
-		this.id=id;
-		this.name=name;
+	public Student(String id,String name) throws WrongInputValueException {
+		if(validateId(id)) {
+			this.id=id;
+		}
+		else {
+			throw new WrongInputValueException("Khởi tạo id học sinh sai: "+id);
+		}
+		if(validateName(name)) {
+			this.name=name;
+		}
+		else {
+			
+			throw new WrongInputValueException("Khởi tạo tên học sinh sai: "+name);
+		}
+		
 	}
 	
 	
-	public int getId() {
-		return id;
+	public String getId() {
+		return this.id;
 	}
 
-	public boolean setId(int id) throws WrongInputValueException  {
+	public boolean setId(String id) throws WrongInputValueException  {
 		if(validateId(id)) {
 		this.id = id;
 		return true;
 	}
 		else {
-		throw new WrongInputValueException("Wrong id:" +id);
+		throw new WrongInputValueException("id cho student không hợp lệ :" +id);
 		
 	}
 	}
@@ -35,8 +49,11 @@ public class Student implements Serializable{
 	}
 
 	public boolean setName(String name) {
+		if(validateName(name)) {
 		this.name = name;
 		return true;
+		}
+		return false;
 	}
 
 	public String getClassName() {
@@ -67,14 +84,20 @@ public class Student implements Serializable{
 			return false;
 		}
 	}
-	
-	private boolean validateId(int id) {
-		boolean check =true;
-//		for(int i=0;i<usedId.size();i++) {
-//			if(usedId.get(i)==this.id) {
-//				return check=false;
-//			}
-//		}
-		return check;
+	// id helper 
+	private boolean validateId(String id) {
+	if(id==null||id.length()!=10) {
+		return false;
 	}
+		return true;
+	}
+	// name helper
+	private boolean validateName(String name) {
+		if(name==null||name.length()<0) {
+			return false;
+		}
+		return true;
+	}
+	
+	
 }
