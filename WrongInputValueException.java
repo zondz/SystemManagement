@@ -7,4 +7,11 @@ public WrongInputValueException() {
 public WrongInputValueException(String exceptionDescription) {
 	super(exceptionDescription);
 }
+
+@Override 
+public String getMessage() {
+	return super.getMessage();
+}
+
+
 }

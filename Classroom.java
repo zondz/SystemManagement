@@ -24,6 +24,7 @@ public class Classroom implements Serializable{
 			this.classroomName=classroomName;
 		}
 		else {
+			System.out.println("WORKING");
 			throw new WrongInputValueException("tên lớp khởi tạo sai : " +classroomName);
 		}
 	

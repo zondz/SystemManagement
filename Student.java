@@ -93,7 +93,7 @@ public class Student implements Serializable{
 	}
 	// name helper
 	private boolean validateName(String name) {
-		if(name==null||name.length()<0) {
+		if(name==null||name.length()<=0) {
 			return false;
 		}
 		return true;
